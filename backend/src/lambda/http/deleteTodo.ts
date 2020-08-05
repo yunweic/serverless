@@ -4,13 +4,10 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } f
 import { createLogger } from '../../utils/logger'
 import { getUserId } from '../utils'
 
-import * as AWS  from 'aws-sdk'
+import { deleteTodo } from '../../dataLayer/todosAccess'
 
-const docClient = new AWS.DynamoDB.DocumentClient()
 
 const logger = createLogger('deleteTodo')
-
-const todosTable = process.env.TODOS_TABLE
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const todoId = event.pathParameters.todoId
@@ -18,13 +15,9 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   // TODO: Remove a TODO item by id
   logger.info(`Processing delete event: ${JSON.stringify(todoId)}`)
 
-  await docClient.delete({
-    TableName: todosTable,
-    Key: {
-      userId: getUserId(event),
-      todoId: todoId
-    }
-  }).promise()
+  const uid = getUserId(event)
+
+  await deleteTodo(uid, todoId)
 
   return{
     statusCode: 200,

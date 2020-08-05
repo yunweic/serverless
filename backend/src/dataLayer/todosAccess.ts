@@ -8,6 +8,7 @@ export class TodoDataAccess {
   ){}
 
   async getTodosPerUser(userId: string) {
+
     const result = await this.docClient.query({
       TableName: this.todosTable,
       KeyConditionExpression: 'userId = :userId',
@@ -20,19 +21,9 @@ export class TodoDataAccess {
     return result.Items
   }
     
-  async createTodo(userId: string, todoId: string, newTodo: any) {
+  async createTodo(newItem: any) {
       
     const logger = createLogger('createTodo')
-
-    const createdAt = new Date().toISOString()
-
-    const newItem = {
-      userId,
-      createdAt,
-      todoId,
-      ...newTodo,
-      done: false
-    }
 
     logger.info(`Storing new item: ${JSON.stringify(newItem)}`)
 

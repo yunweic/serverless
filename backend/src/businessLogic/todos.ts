@@ -1,4 +1,5 @@
 import { TodoDataAccess } from '../dataLayer/todosAccess'
+import * as uuid from 'uuid'
 
 const todoAccess = new TodoDataAccess
 
@@ -6,8 +7,20 @@ export async function getTodosPerUser(userId: string) {
   return todoAccess.getTodosPerUser(userId)
 }
   
-export async function createTodo(userId: string, todoId: string, newTodo: any) {
-  return todoAccess.createTodo(userId, todoId, newTodo)
+export async function createTodo(userId: string, newTodo: any) {
+
+  const todoId = uuid.v4()
+  const createdAt = new Date().toISOString()
+
+  const newItem = {
+    userId,
+    createdAt,
+    todoId,
+    ...newTodo,
+    done: false
+  }
+
+  return todoAccess.createTodo(newItem)
 }
 
 export async function deleteTodo(userId: string, todoId: string) {

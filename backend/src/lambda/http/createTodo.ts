@@ -5,6 +5,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
 import { createTodo } from '../../dataLayer/todosAccess'
+import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 
 import * as uuid from 'uuid'
 
@@ -16,7 +17,10 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   logger.info(`Processing create event: ${JSON.stringify(event)}`)
 
   const todoId = uuid.v4()
-  const newItem = await createTodo(getUserId(event), todoId, event)
+
+  const newTodo: CreateTodoRequest = JSON.parse(event.body)
+
+  const newItem = await createTodo(getUserId(event), todoId, newTodo)
 
   return {
     statusCode: 201,

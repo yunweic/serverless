@@ -1,12 +1,8 @@
 import * as AWS  from 'aws-sdk'
 import { createLogger } from '../utils/logger'
-import { CreateTodoRequest } from '../requests/CreateTodoRequest'
 
 const docClient = new AWS.DynamoDB.DocumentClient()
-
 const todosTable = process.env.TODOS_TABLE
-
-const logger = createLogger('updateTodo')
 
 export async function getTodosPerUser(userId: string) {
     const result = await docClient.query({
@@ -21,9 +17,11 @@ export async function getTodosPerUser(userId: string) {
     return result.Items
   }
 
-export async function createTodo(userId: string, todoId: string, event: any) {
+export async function createTodo(userId: string, todoId: string, newTodo: any) {
+    
+    const logger = createLogger('createTodo')
+
     const createdAt = new Date().toISOString()
-    const newTodo: CreateTodoRequest = JSON.parse(event.body)
 
     const newItem = {
         userId,
@@ -54,7 +52,6 @@ export async function deleteTodo(userId: string, todoId: string) {
         }
       }).promise()
 
-    return 
 }
 
 export async function updateTodo(userId: string, todoId: string, todoName: string, dueDate: string, done: boolean) {
@@ -75,7 +72,6 @@ export async function updateTodo(userId: string, todoId: string, todoName: strin
         ReturnValues: "UPDATED_NEW"
       }).promise()
 
-    return 
 }
 
 export async function updateAttachment(userId: string, todoId: string, attachmentUrl: string) {
@@ -94,5 +90,4 @@ export async function updateAttachment(userId: string, todoId: string, attachmen
         ReturnValues: "UPDATED_NEW"
     }).promise()
 
-    return
 }

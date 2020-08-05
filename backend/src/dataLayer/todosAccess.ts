@@ -54,5 +54,26 @@ export async function deleteTodo(userId: string, todoId: string) {
         }
       }).promise()
 
-      return 
+    return 
+}
+
+export async function updateTodo(userId: string, todoId: string, todoName: string, dueDate: string, done: boolean) {
+    
+    await docClient.update({
+        TableName: todosTable,
+        Key: {
+          userId: userId,
+          todoId: todoId
+        },
+        ExpressionAttributeNames: { "#N": "name" },
+        UpdateExpression: "set #N=:todoName, dueDate=:dueDate, done=:done",
+        ExpressionAttributeValues: {
+          ":todoName": todoName,
+          ":dueDate": dueDate,
+          ":done": done
+        },
+        ReturnValues: "UPDATED_NEW"
+      }).promise()
+
+    return 
 }

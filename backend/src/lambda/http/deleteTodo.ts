@@ -4,7 +4,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } f
 import { createLogger } from '../../utils/logger'
 import { getUserId } from '../utils'
 
-import { deleteTodo } from '../../dataLayer/todosAccess'
+import { deleteTodo } from '../../businessLogic/todos'
 
 
 const logger = createLogger('deleteTodo')

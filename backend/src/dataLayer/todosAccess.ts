@@ -1,12 +1,15 @@
 import * as AWS  from 'aws-sdk'
 import { createLogger } from '../utils/logger'
 
-const docClient = new AWS.DynamoDB.DocumentClient()
-const todosTable = process.env.TODOS_TABLE
+export class TodoDataAccess {
+  constructor(
+    private readonly docClient = new AWS.DynamoDB.DocumentClient(),
+    private readonly todosTable = process.env.TODOS_TABLE
+  ){}
 
-export async function getTodosPerUser(userId: string) {
-    const result = await docClient.query({
-      TableName: todosTable,
+  async getTodosPerUser(userId: string) {
+    const result = await this.docClient.query({
+      TableName: this.todosTable,
       KeyConditionExpression: 'userId = :userId',
       ExpressionAttributeValues: {
         ':userId': userId
@@ -16,78 +19,93 @@ export async function getTodosPerUser(userId: string) {
   
     return result.Items
   }
-
-export async function createTodo(userId: string, todoId: string, newTodo: any) {
     
+  async createTodo(userId: string, todoId: string, newTodo: any) {
+      
     const logger = createLogger('createTodo')
 
     const createdAt = new Date().toISOString()
 
     const newItem = {
-        userId,
-        createdAt,
-        todoId,
-        ...newTodo,
-        done: false
+      userId,
+      createdAt,
+      todoId,
+      ...newTodo,
+      done: false
     }
 
     logger.info(`Storing new item: ${JSON.stringify(newItem)}`)
 
-    await docClient
-        .put({
-        TableName: todosTable,
+    await this.docClient
+      .put({
+        TableName: this.todosTable,
         Item: newItem
-        })
-        .promise()
+      }).promise()
 
     return newItem
 }
+  
+  async deleteTodo(userId: string, todoId: string) {
 
-export async function deleteTodo(userId: string, todoId: string) {
-    await docClient.delete({
-        TableName: todosTable,
-        Key: {
-          userId: userId,
-          todoId: todoId
-        }
-      }).promise()
-
-}
-
-export async function updateTodo(userId: string, todoId: string, todoName: string, dueDate: string, done: boolean) {
+    const logger = createLogger('deleteTodo')
     
-    await docClient.update({
-        TableName: todosTable,
-        Key: {
-          userId: userId,
-          todoId: todoId
-        },
-        ExpressionAttributeNames: { "#N": "name" },
-        UpdateExpression: "set #N=:todoName, dueDate=:dueDate, done=:done",
-        ExpressionAttributeValues: {
-          ":todoName": todoName,
-          ":dueDate": dueDate,
-          ":done": done
-        },
-        ReturnValues: "UPDATED_NEW"
-      }).promise()
+    logger.info(`Delete item: ${userId} ${todoId}`)
 
-}
-
-export async function updateAttachment(userId: string, todoId: string, attachmentUrl: string) {
-
-    await docClient.update({
-        TableName: todosTable,
-        Key: {
-            userId: userId,
-            todoId: todoId
-        },
-        ExpressionAttributeNames: {"#A": "attachmentUrl"},
-        UpdateExpression: "set #A = :attachmentUrl",
-        ExpressionAttributeValues: {
-            ":attachmentUrl": attachmentUrl,
-        },
-        ReturnValues: "UPDATED_NEW"
+    await this.docClient.delete({
+      TableName: this.todosTable,
+      Key: {
+        userId: userId,
+        todoId: todoId
+      }
     }).promise()
 
+  }
+  
+  async updateTodo(userId: string, todoId: string, todoName: string, dueDate: string, done: boolean) {
+      
+    const logger = createLogger('updateTodo')
+
+    logger.info(`Storing new item: ${userId} ${todoId} ${todoName} ${dueDate} ${done}`)
+    
+    await this.docClient.update({
+      TableName: this.todosTable,
+      Key: {
+        userId: userId,
+        todoId: todoId
+      },
+      ExpressionAttributeNames: { "#N": "name" },
+      UpdateExpression: "set #N=:todoName, dueDate=:dueDate, done=:done",
+      ExpressionAttributeValues: {
+        ":todoName": todoName,
+        ":dueDate": dueDate,
+        ":done": done
+      },
+      ReturnValues: "UPDATED_NEW"
+    }).promise()
+
+  }
+  
+  async updateAttachment(userId: string, todoId: string, attachmentUrl: string) {
+  
+    const logger = createLogger('updateAttachment')
+
+    logger.info(`Storing new item: ${userId} ${todoId} ${attachmentUrl}`)
+
+    await this.docClient.update({
+      TableName: this.todosTable,
+      Key: {
+          userId: userId,
+          todoId: todoId
+      },
+      ExpressionAttributeNames: {"#A": "attachmentUrl"},
+      UpdateExpression: "set #A = :attachmentUrl",
+      ExpressionAttributeValues: {
+          ":attachmentUrl": attachmentUrl,
+      },
+      ReturnValues: "UPDATED_NEW"
+    }).promise()
+  
+  }
+
 }
+

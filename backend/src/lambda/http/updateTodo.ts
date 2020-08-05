@@ -4,7 +4,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 import { createLogger } from '../../utils/logger'
 import { getUserId } from '../utils'
 import { UpdateTodoRequest } from '../../requests/UpdateTodoRequest'
-import { updateTodo } from '../../dataLayer/todosAccess'
+import { updateTodo } from '../../businessLogic/todos'
 
 const logger = createLogger('updateTodo')
 

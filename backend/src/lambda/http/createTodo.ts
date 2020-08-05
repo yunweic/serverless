@@ -4,7 +4,7 @@ import { APIGatewayProxyEvent, APIGatewayProxyHandler, APIGatewayProxyResult } f
 
 import { getUserId } from '../utils'
 import { createLogger } from '../../utils/logger'
-import { createTodo } from '../../dataLayer/todosAccess'
+import { createTodo } from '../../businessLogic/todos'
 import { CreateTodoRequest } from '../../requests/CreateTodoRequest'
 
 import * as uuid from 'uuid'

@@ -3,7 +3,7 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import { createLogger } from '../../utils/logger'
 import { getUserId } from '../utils'
-import { updateAttachment } from '../../dataLayer/todosAccess'
+import { updateAttachment } from '../../businessLogic/todos'
 
 import * as AWS  from 'aws-sdk'
 

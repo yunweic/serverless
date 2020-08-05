@@ -3,12 +3,10 @@ import 'source-map-support/register'
 import { APIGatewayProxyEvent, APIGatewayProxyResult, APIGatewayProxyHandler } from 'aws-lambda'
 import { createLogger } from '../../utils/logger'
 import { getUserId } from '../utils'
+import { updateAttachment } from '../../dataLayer/todosAccess'
 
 import * as AWS  from 'aws-sdk'
 
-const docClient = new AWS.DynamoDB.DocumentClient()
-
-const todosTable = process.env.TODOS_TABLE
 const bucketName = process.env.IMAGES_S3_BUCKET
 const urlExpiration = process.env.SIGNED_URL_EXPIRATION
 
@@ -24,23 +22,13 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   // TODO: Return a presigned URL to upload a file for a TODO item with the provided id
   logger.info('Processing upload event: ', todoId)
 
+  const uid = getUserId(event)
+
   const uploadUrl = getUploadUrl(todoId)
 
   const attachmentUrl = `https://${bucketName}.s3.amazonaws.com/${todoId}`
 
-  await docClient.update({
-    TableName: todosTable,
-    Key: {
-      userId: getUserId(event),
-      todoId: todoId
-    },
-    ExpressionAttributeNames: {"#A": "attachmentUrl"},
-    UpdateExpression: "set #A = :attachmentUrl",
-    ExpressionAttributeValues: {
-        ":attachmentUrl": attachmentUrl,
-    },
-    ReturnValues: "UPDATED_NEW"
-  }).promise()
+  await updateAttachment(uid, todoId, attachmentUrl)
 
   return {
     statusCode: 200,

@@ -77,3 +77,22 @@ export async function updateTodo(userId: string, todoId: string, todoName: strin
 
     return 
 }
+
+export async function updateAttachment(userId: string, todoId: string, attachmentUrl: string) {
+
+    await docClient.update({
+        TableName: todosTable,
+        Key: {
+            userId: userId,
+            todoId: todoId
+        },
+        ExpressionAttributeNames: {"#A": "attachmentUrl"},
+        UpdateExpression: "set #A = :attachmentUrl",
+        ExpressionAttributeValues: {
+            ":attachmentUrl": attachmentUrl,
+        },
+        ReturnValues: "UPDATED_NEW"
+    }).promise()
+
+    return
+}
